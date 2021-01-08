@@ -32,8 +32,8 @@ require 'logger'
 require 'tempfile'
 require 'open-uri'
 
-CLIENT_ID       = '978117856621-tvpnqtr02b8u0bgnh75sqb1loq1f5527.apps.googleusercontent.com'
-CLIENT_SECRET   = 'rty2NIATZfWFWSDX-XPs2usX'
+CLIENT_ID       = ENV['CLIENT_ID'] || '978117856621-tvpnqtr02b8u0bgnh75sqb1loq1f5527.apps.googleusercontent.com'
+CLIENT_SECRET   = ENV['CLIENT_SECRET'] || 'rty2NIATZfWFWSDX-XPs2usX'
 REDIRECT_URL    = 'http://127.0.0.1:1337'
 
 RELEASES_URL    = "https://api.github.com/repos/#{ENV['gh_repos'] || 'azai91/alfred-drive-workflow'}/releases"
@@ -50,6 +50,7 @@ MIME_TYPE_ICONS = {
   'application/vnd.google-apps.spreadsheet'  => { :path => 'icons/sheet.png' },
   'application/vnd.google-apps.presentation' => { :path => 'icons/slide.png' },
   'application/vnd.google-apps.form'         => { :path => 'icons/form.png'  },
+  'application/vnd.google-apps.folder'       => { :path => 'icons/folder.png'  },
   'application/pdf'                          => { :path => 'icons/dummy.pdf', :type => 'fileicon' },
 }
 
@@ -248,7 +249,7 @@ class Auth
     auth_url = 'https://accounts.google.com/o/oauth2/auth?' + URI.encode_www_form({
       'client_id'       => CLIENT_ID,
       'redirect_uri'    => REDIRECT_URL,
-      'scope'           => 'https://www.googleapis.com/auth/drive',
+      'scope'           => 'https://www.googleapis.com/auth/drive.metadata.readonly',
       'response_type'   => 'code',
       'access_type'     => 'offline',
       'approval_prompt' => 'force'
@@ -523,9 +524,10 @@ begin
       parents_by_id = { }
       folders = items.select { |item| item['mimeType'] == 'application/vnd.google-apps.folder' }
       folders.each { |item| parents_by_id[item['id']] = item }
-
-      files = items.reject { |item| item['mimeType'] == 'application/vnd.google-apps.folder' }
-      files = files.select { |item| item['title'] =~ filter_regex }
+      
+      # We want to return folders too, so dont reject them
+      # files = items.reject { |item| item['mimeType'] == 'application/vnd.google-apps.folder' }
+      files = items.select { |item| item['title'] =~ filter_regex }
       files = files.sort { |lhs, rhs| rhs['modifiedDate'] <=> lhs['modifiedDate'] }
 
       res += files.map do |item|
