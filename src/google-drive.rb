@@ -32,8 +32,8 @@ require 'logger'
 require 'tempfile'
 require 'open-uri'
 
-CLIENT_ID       = ENV['CLIENT_ID'] || '978117856621-tvpnqtr02b8u0bgnh75sqb1loq1f5527.apps.googleusercontent.com'
-CLIENT_SECRET   = ENV['CLIENT_SECRET'] || 'rty2NIATZfWFWSDX-XPs2usX'
+CLIENT_ID       = ENV['CLIENT_ID'] || ''
+CLIENT_SECRET   = ENV['CLIENT_SECRET'] || ''
 REDIRECT_URL    = 'http://127.0.0.1:1337'
 
 RELEASES_URL    = "https://api.github.com/repos/#{ENV['gh_repos'] || 'azai91/alfred-drive-workflow'}/releases"
